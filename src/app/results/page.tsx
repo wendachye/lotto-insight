@@ -25,6 +25,7 @@ export default function ResultsPage() {
   const [hasMore, setHasMore] = useState(true);
   const [oldestDate, setOldestDate] = useState<string | null>(null);
   const [latestDate, setLatestDate] = useState<string | null>(null);
+  const [showScrollTop, setShowScrollTop] = useState(false);
 
   const size = 150;
   const { data, isSuccess, isError, isFetching } = useQuery({
@@ -68,6 +69,19 @@ export default function ResultsPage() {
       handleLoadMore();
     }
   }, [inView, hasMore, isFetching]);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowScrollTop(window.scrollY > 300);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   const handleLoadMore = () => {
     const lastDate = results[results.length - 1]?.draw_date;
@@ -141,6 +155,15 @@ export default function ResultsPage() {
       )}
 
       {!hasMore && <p className="text-center text-sm text-gray-500">No more results to load.</p>}
+
+      {showScrollTop && (
+        <button
+          onClick={scrollToTop}
+          className="fixed bottom-6 right-6 z-50 rounded-full bg-black text-white px-4 py-2 shadow-lg hover:bg-gray-800 transition cursor-pointer"
+        >
+          ↑ Top
+        </button>
+      )}
     </div>
   );
 }
