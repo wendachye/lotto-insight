@@ -1,16 +1,16 @@
-name: 4D Data Fetch
+name: Fetch Lotto Data
 
 on:
-  schedule:
-    - cron: '*/5 * * * *'  # Every 5 minutes
-  workflow_dispatch:
-
+    schedule:
+      - cron: '0 14 * * *'  # 2:00 PM UTC = 10:00 PM SGT
+    workflow_dispatch:
+  
 jobs:
-  call-scrape-api:
+  fetch-lotto-data:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Call scrape API with today's date
+      - name: Fetch Lotto Data
         run: |
           TODAY=$(date +'%Y%m%d')
           curl -s -X GET "https://lotto-insight.vercel.app/api/scrape?dateRange=${TODAY}-"
