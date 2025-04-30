@@ -36,8 +36,6 @@ export default function ScraperPage() {
 
   return (
     <div className="p-6 max-w-lg mx-auto space-y-6">
-      <h1 className="text-2xl font-semibold tracking-tight">Lotto Scraper</h1>
-
       <div className="space-y-4">
         <div className="space-y-2">
           <Label htmlFor="start-date">Start Date</Label>

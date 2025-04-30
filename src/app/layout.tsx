@@ -1,3 +1,5 @@
+import { AppSidebar } from '@/components/app-sidebar';
+import { SidebarInset, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
@@ -26,7 +28,14 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <Providers>{children}</Providers>
+        <SidebarProvider>
+          <AppSidebar />
+          <SidebarInset>
+            <SidebarTrigger className="cursor-pointer ml-3 mt-3" />
+
+            <Providers>{children}</Providers>
+          </SidebarInset>
+        </SidebarProvider>
       </body>
     </html>
   );
