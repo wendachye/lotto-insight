@@ -68,7 +68,10 @@ export async function GET(req: NextRequest) {
   }
 
   if (results.length === 0) {
-    return NextResponse.json({ message: 'No valid results found in date range.' }, { status: 204 });
+    return NextResponse.json({
+      success: true,
+      inserted: 0,
+    });
   }
 
   const { error } = await supabase

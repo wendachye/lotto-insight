@@ -22,8 +22,8 @@ const items = [
     icon: Calendar,
   },
   {
-    title: 'Scrape Results',
-    url: '/scrape-results',
+    title: 'Fetch Results',
+    url: '/fetch-results',
     icon: Settings,
   },
 ];
