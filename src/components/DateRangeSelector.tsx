@@ -14,6 +14,7 @@ const RANGE_OPTIONS: { label: string; value: number }[] = [
   { label: '3 Months', value: 90 },
   { label: '6 Months', value: 180 },
   { label: '1 Year', value: 365 },
+  { label: 'All', value: 0 },
 ];
 
 export function DateRangeSelector({ value, onChange, className }: DateRangeSelectorProps) {
@@ -24,6 +25,7 @@ export function DateRangeSelector({ value, onChange, className }: DateRangeSelec
           key={opt.value}
           variant={value === opt.value ? 'default' : 'outline'}
           onClick={() => onChange(opt.value)}
+          className="cursor-pointer"
         >
           {opt.label}
         </Button>
