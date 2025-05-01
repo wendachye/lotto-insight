@@ -55,8 +55,8 @@ export function WinningCumulativeChart({ data }: { data: PivotedResult[] }) {
 
   return (
     <div className="mt-8">
-      <h2 className="text-lg font-semibold mb-4">Cumulative Winning Over Time</h2>
-      <ResponsiveContainer width="100%" height={400}>
+      <h2 className="text-lg sm:text-xl font-semibold">Cumulative Winning Over Time</h2>
+      <ResponsiveContainer width="100%" height={300}>
         <LineChart
           key={Object.values(visibleLines).join('')} // Ensures chart reinitializes cleanly
           data={chartData}
