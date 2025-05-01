@@ -12,7 +12,7 @@ import Image from 'next/image';
 
 const items = [
   {
-    title: 'Home',
+    title: 'Dashboard',
     url: '/',
     icon: Home,
   },

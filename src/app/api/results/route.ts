@@ -2,7 +2,7 @@ import { supabase } from '@/lib/supabase';
 import dayjs from 'dayjs';
 import { NextRequest, NextResponse } from 'next/server';
 
-export async function fetchAllResults(batchSize = 1000) {
+async function fetchAllResults(batchSize = 1000) {
   const allResults: any[] = [];
   let page = 0;
 
