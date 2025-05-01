@@ -1,6 +1,8 @@
 'use client';
 
 import { AverageStreakChart } from '@/components/AverageStreakChart';
+import { BetHitRateChart } from '@/components/BetHitRateChart';
+import { BetResultChart } from '@/components/BetResultChart';
 import { DateRangeSelector } from '@/components/DateRangeSelector';
 import { DigitPatternChart } from '@/components/DigitPatternChart';
 import { LongestStreaksChart } from '@/components/LongestStreaksChart';
@@ -55,6 +57,8 @@ export default function HomePage() {
 
       {!isFetching && isSuccess && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <BetResultChart data={data.results} />
+          <BetHitRateChart data={data.results} />
           <WinningCumulativeChart data={data.results} />
           <WinTrendChart data={data.results} />
           <WinningPercentageChart data={data.results} />

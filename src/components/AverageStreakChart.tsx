@@ -2,7 +2,7 @@
 
 import { useIsMobile } from '@/hooks/use-mobile';
 import { COMPANIES } from '@/lib/constants';
-import { analyzeAverageStreaks } from '@/lib/utils';
+import { getAverageStreaks } from '@/lib/utils';
 import { PivotedResult } from '@/types/results';
 import {
   Bar,
@@ -17,7 +17,7 @@ import {
 
 export function AverageStreakChart({ data }: { data: PivotedResult[] }) {
   const isMobile = useIsMobile();
-  const streaks = analyzeAverageStreaks(data);
+  const streaks = getAverageStreaks(data);
 
   const chartData = COMPANIES.map((company) => {
     const s = streaks.find((s) => s.company === company);
@@ -27,8 +27,6 @@ export function AverageStreakChart({ data }: { data: PivotedResult[] }) {
       averageLose: s?.averageLose ?? 0,
     };
   });
-
-  console.log('chartData', chartData);
 
   const renderTooltip = ({ active, payload }: any) => {
     if (!active || !payload?.length) return null;

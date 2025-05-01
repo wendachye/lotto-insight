@@ -1,4 +1,10 @@
-import { AverageStreakResult, LongestStreakResult, PivotedResult } from '@/types/results';
+import {
+  AverageStreakResult,
+  BetResult,
+  HitRateResult,
+  LongestStreakResult,
+  PivotedResult,
+} from '@/types/results';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import { COMPANIES } from './constants';
@@ -43,7 +49,7 @@ export function formatQuarter(date: Date): string {
   return `Q${quarter}-${year}`;
 }
 
-export function analyzeLongestStreaks(data: PivotedResult[]): LongestStreakResult[] {
+export function getLongestStreaks(data: PivotedResult[]): LongestStreakResult[] {
   const sorted = [...data].sort((a, b) => a.draw_date.localeCompare(b.draw_date));
   const results: LongestStreakResult[] = [];
 
@@ -127,7 +133,7 @@ export function average(arr: number[]) {
   return arr.length > 0 ? parseFloat((arr.reduce((a, b) => a + b, 0) / arr.length).toFixed(2)) : 0;
 }
 
-export function analyzeAverageStreaks(data: PivotedResult[]): AverageStreakResult[] {
+export function getAverageStreaks(data: PivotedResult[]): AverageStreakResult[] {
   const sorted = [...data].sort((a, b) => a.draw_date.localeCompare(b.draw_date));
   const results: AverageStreakResult[] = [];
 
@@ -163,6 +169,136 @@ export function analyzeAverageStreaks(data: PivotedResult[]): AverageStreakResul
       company,
       averageWin: average(winStreaks),
       averageLose: average(loseStreaks),
+    });
+  }
+
+  return results;
+}
+
+export function getBetHitRate(data: PivotedResult[]): Record<string, HitRateResult> {
+  const sorted = [...data].sort((a, b) => a.draw_date.localeCompare(b.draw_date));
+
+  const results: Record<string, HitRateResult> = {};
+
+  for (const company of COMPANIES) {
+    let loseStreak = 0;
+    let totalLoseStreaks = 0;
+    let streakCount = 0;
+    let lastWasLose = false;
+
+    // First pass: calculate average lose streak
+    for (const row of sorted) {
+      const val = row[company];
+      if (!val) continue;
+
+      const isWin = hasDuplicateInLastThreeDigits(val);
+
+      if (!isWin) {
+        loseStreak++;
+        lastWasLose = true;
+      } else {
+        if (lastWasLose && loseStreak > 0) {
+          totalLoseStreaks += loseStreak;
+          streakCount++;
+        }
+        loseStreak = 0;
+        lastWasLose = false;
+      }
+    }
+
+    const avgLoseStreak = streakCount > 0 ? Math.round(totalLoseStreaks / streakCount) : 0;
+
+    // Second pass: simulate betting after average lose streak
+    let currentLose = 0;
+    let canBet = false;
+    let bets = 0;
+    let hits = 0;
+
+    for (let i = 0; i < sorted.length; i++) {
+      const row = sorted[i];
+      const val = row[company];
+      if (!val) continue;
+
+      const isWin = hasDuplicateInLastThreeDigits(val);
+
+      if (!isWin) {
+        currentLose++;
+      } else {
+        currentLose = 0;
+      }
+
+      if (canBet) {
+        bets++;
+        if (isWin) hits++;
+        canBet = false;
+      }
+
+      if (currentLose === avgLoseStreak) {
+        canBet = true;
+      }
+    }
+
+    results[company] = {
+      bets,
+      hits,
+      hitRate: bets > 0 ? +((hits / bets) * 100).toFixed(2) : 0,
+    };
+  }
+
+  return results;
+}
+
+export function getBetResult(
+  data: PivotedResult[],
+  basePrize: number,
+  baseBet: number
+): BetResult[] {
+  const sorted = [...data].sort((a, b) => a.draw_date.localeCompare(b.draw_date));
+  const results: BetResult[] = [];
+
+  for (const company of COMPANIES) {
+    let currentBet = baseBet;
+    let currentPrize = basePrize;
+    let cumulativeLoss = 0;
+    let netProfit = 0;
+    let totalWins = 0;
+    let totalLosses = 0;
+    let totalCost = 0;
+
+    for (const row of sorted) {
+      const value = row[company];
+      if (!value) continue;
+
+      const isWin = hasDuplicateInLastThreeDigits(value);
+
+      totalCost += currentBet;
+
+      if (isWin) {
+        totalWins++;
+        netProfit += currentPrize - cumulativeLoss - currentBet;
+        cumulativeLoss = 0;
+        currentBet = baseBet;
+        currentPrize = basePrize;
+      } else {
+        totalLosses++;
+        cumulativeLoss += currentBet;
+
+        let multiplier = 1;
+        while (basePrize * multiplier <= cumulativeLoss + baseBet * multiplier) {
+          multiplier++;
+        }
+
+        currentBet = baseBet * multiplier;
+        currentPrize = basePrize * multiplier;
+      }
+    }
+
+    results.push({
+      company: company.charAt(0).toUpperCase() + company.slice(1),
+      totalWins,
+      totalLosses,
+      totalCost,
+      netProfit,
     });
   }
 

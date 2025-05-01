@@ -2,7 +2,7 @@
 
 import { useIsMobile } from '@/hooks/use-mobile';
 import { COMPANIES } from '@/lib/constants';
-import { analyzeLongestStreaks } from '@/lib/utils';
+import { getLongestStreaks } from '@/lib/utils';
 import { PivotedResult } from '@/types/results';
 import {
   Bar,
@@ -17,7 +17,7 @@ import {
 
 export function LongestStreaksChart({ data }: { data: PivotedResult[] }) {
   const isMobile = useIsMobile();
-  const streaks = analyzeLongestStreaks(data);
+  const streaks = getLongestStreaks(data);
 
   const chartData = COMPANIES.map((company) => {
     const win = streaks.find((s) => s.company === company && s.type === 'win');

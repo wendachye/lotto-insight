@@ -16,3 +16,17 @@ export type AverageStreakResult = {
   averageWin: number;
   averageLose: number;
 };
+
+export interface HitRateResult {
+  bets: number;
+  hits: number;
+  hitRate: number;
+}
+
+export type BetResult = {
+  company: string;
+  totalWins: number;
+  totalLosses: number;
+  totalCost: number;
+  netProfit: number;
+};
