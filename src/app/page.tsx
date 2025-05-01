@@ -2,6 +2,7 @@
 
 import { DateRangeSelector } from '@/components/DateRangeSelector';
 import { DigitPatternChart } from '@/components/DigitPatternChart';
+import { StreaksChart } from '@/components/StreaksChart';
 import { WinTrendChart } from '@/components/WinTrendChart';
 import { WinningCumulativeChart } from '@/components/WinningCumulativeChart';
 import { WinningPercentageChart } from '@/components/WinningPercentageChart';
@@ -57,6 +58,7 @@ export default function HomePage() {
           <WinTrendChart data={data.results} />
           <WinningPercentageChart data={data.results} />
           <DigitPatternChart data={data.results} />
+          <StreaksChart data={data.results} />
         </div>
       )}
     </div>

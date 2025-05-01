@@ -28,7 +28,7 @@ export default function ResultsPage() {
   const [latestDate, setLatestDate] = useState<string | null>(null);
   const [showScrollTop, setShowScrollTop] = useState(false);
 
-  const size = 50;
+  const size = 100;
   const { data, isSuccess, isError, isFetching } = useQuery({
     queryKey: ['results', anchorDate, sortOrder],
     queryFn: async () => {
