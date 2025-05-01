@@ -11,6 +11,7 @@ export function DigitPatternChart({ data }: { data: PivotedResult[] }) {
   const isMobile = useIsMobile();
   const [hiddenPatterns, setHiddenPatterns] = useState<Set<string>>(new Set());
 
+  // Generate pattern counts
   const patternMap = useMemo(() => {
     const map = new Map<string, number>();
     for (const row of data) {
@@ -25,10 +26,20 @@ export function DigitPatternChart({ data }: { data: PivotedResult[] }) {
     return map;
   }, [data]);
 
-  const chartData = Array.from(patternMap.entries())
-    .map(([pattern, count]) => ({ name: pattern, value: count }))
-    .sort((a, b) => b.value - a.value)
-    .filter((entry) => !hiddenPatterns.has(entry.name));
+  // Sorted full pattern list (preserve for consistent color assignment)
+  const allPatterns = useMemo(() => {
+    return Array.from(patternMap.entries())
+      .sort((a, b) => b[1] - a[1])
+      .map(([pattern]) => pattern);
+  }, [patternMap]);
+
+  // Filtered chart data (respect toggle)
+  const chartData = allPatterns
+    .filter((pattern) => !hiddenPatterns.has(pattern))
+    .map((pattern) => ({
+      name: pattern,
+      value: patternMap.get(pattern)!,
+    }));
 
   const togglePattern = (pattern: string) => {
     setHiddenPatterns((prev) => {
@@ -60,8 +71,8 @@ export function DigitPatternChart({ data }: { data: PivotedResult[] }) {
     );
   };
 
-  const legendPayload = Array.from(patternMap.entries()).map(([pattern, count], index) => ({
-    value: `${pattern} (${count})`,
+  const legendPayload = allPatterns.map((pattern, index) => ({
+    value: `${pattern} (${patternMap.get(pattern)})`,
     color: COLORS[index % COLORS.length],
     id: pattern,
     inactive: hiddenPatterns.has(pattern),
@@ -82,9 +93,10 @@ export function DigitPatternChart({ data }: { data: PivotedResult[] }) {
             label={renderCustomLabel}
             labelLine={false}
           >
-            {chartData.map((entry, index) => (
-              <Cell key={`cell-${entry.name}`} fill={COLORS[index % COLORS.length]} />
-            ))}
+            {chartData.map((entry) => {
+              const colorIndex = allPatterns.indexOf(entry.name);
+              return <Cell key={`cell-${entry.name}`} fill={COLORS[colorIndex % COLORS.length]} />;
+            })}
           </Pie>
 
           <Tooltip formatter={(value: number, name: string) => [`${value}`, `Pattern ${name}`]} />

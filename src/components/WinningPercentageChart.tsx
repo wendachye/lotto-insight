@@ -93,8 +93,11 @@ export function WinningPercentageChart({ data }: { data: PivotedResult[] }) {
             label={renderCustomLabel}
             labelLine={false}
           >
-            {chartData.map((entry, index) => (
-              <Cell key={entry.name} fill={COLORS[index % COLORS.length]} />
+            {chartData.map((entry) => (
+              <Cell
+                key={entry.name}
+                fill={COLORS[COMPANIES.indexOf(entry.company) % COLORS.length]}
+              />
             ))}
           </Pie>
           <Tooltip formatter={(value: number, name: string) => [`${value}`, `Company: ${name}`]} />
