@@ -1,14 +1,14 @@
 'use client';
 
+import { useIsMobile } from '@/hooks/use-mobile';
 import { COLORS, COMPANIES } from '@/lib/constants';
 import { hasDuplicateInLastThreeDigits } from '@/lib/utils';
 import { PivotedResult } from '@/types/results';
-import { useMediaQuery } from '@react-hook/media-query';
 import { useMemo, useState } from 'react';
 import { Cell, Legend, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts';
 
 export function WinningPercentageChart({ data }: { data: PivotedResult[] }) {
-  const isMobile = useMediaQuery('only screen and (max-width: 767px)');
+  const isMobile = useIsMobile();
   const [hiddenCompanies, setHiddenCompanies] = useState<Set<string>>(new Set());
 
   const counts = useMemo(() => {

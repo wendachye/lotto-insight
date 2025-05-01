@@ -1,22 +1,22 @@
 'use client';
 
+import { useIsMobile } from '@/hooks/use-mobile';
 import { COMPANIES } from '@/lib/constants';
 import { analyzeAverageStreaks } from '@/lib/utils';
 import { PivotedResult } from '@/types/results';
-import { useMediaQuery } from '@react-hook/media-query';
 import {
-    Bar,
-    BarChart,
-    CartesianGrid,
-    Legend,
-    ResponsiveContainer,
-    Tooltip,
-    XAxis,
-    YAxis,
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Legend,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
 } from 'recharts';
 
 export function AverageStreakChart({ data }: { data: PivotedResult[] }) {
-  const isMobile = useMediaQuery('only screen and (max-width: 767px)');
+  const isMobile = useIsMobile();
   const streaks = analyzeAverageStreaks(data);
 
   const chartData = COMPANIES.map((company) => {

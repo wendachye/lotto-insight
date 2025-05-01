@@ -1,9 +1,9 @@
 'use client';
 
+import { useIsMobile } from '@/hooks/use-mobile';
 import { COMPANIES } from '@/lib/constants';
 import { hasDuplicateInLastThreeDigits } from '@/lib/utils';
 import { PivotedResult } from '@/types/results';
-import { useMediaQuery } from '@react-hook/media-query';
 import { useState } from 'react';
 import {
   CartesianGrid,
@@ -21,7 +21,7 @@ type ChartPoint = {
 } & Record<string, number | string>;
 
 export function WinningCumulativeChart({ data }: { data: PivotedResult[] }) {
-  const isMobile = useMediaQuery('only screen and (max-width: 767px)');
+  const isMobile = useIsMobile();
   const sorted = [...data].sort((a, b) => a.draw_date.localeCompare(b.draw_date));
   const cumulativeTotals: Record<string, number> = {};
   const chartData: ChartPoint[] = [];

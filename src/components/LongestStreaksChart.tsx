@@ -1,9 +1,9 @@
 'use client';
 
+import { useIsMobile } from '@/hooks/use-mobile';
 import { COMPANIES } from '@/lib/constants';
 import { analyzeLongestStreaks } from '@/lib/utils';
 import { PivotedResult } from '@/types/results';
-import { useMediaQuery } from '@react-hook/media-query';
 import {
   Bar,
   BarChart,
@@ -16,7 +16,7 @@ import {
 } from 'recharts';
 
 export function LongestStreaksChart({ data }: { data: PivotedResult[] }) {
-  const isMobile = useMediaQuery('only screen and (max-width: 767px)');
+  const isMobile = useIsMobile();
   const streaks = analyzeLongestStreaks(data);
 
   const chartData = COMPANIES.map((company) => {

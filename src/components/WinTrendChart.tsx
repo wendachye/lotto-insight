@@ -1,9 +1,9 @@
 'use client';
 
+import { useIsMobile } from '@/hooks/use-mobile';
 import { COLORS, COMPANIES } from '@/lib/constants';
 import { formatQuarter, hasDuplicateInLastThreeDigits } from '@/lib/utils';
 import { PivotedResult } from '@/types/results';
-import { useMediaQuery } from '@react-hook/media-query';
 import { format } from 'date-fns';
 import { useMemo, useState } from 'react';
 import {
@@ -19,7 +19,7 @@ import {
 import { ToggleGroup, ToggleGroupItem } from './ui/toggle-group';
 
 export function WinTrendChart({ data }: { data: PivotedResult[] }) {
-  const isMobile = useMediaQuery('only screen and (max-width: 767px)');
+  const isMobile = useIsMobile();
   const [view, setView] = useState<'monthly' | 'quarterly'>('monthly');
 
   const chartData = useMemo(() => {
