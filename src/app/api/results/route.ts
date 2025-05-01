@@ -2,14 +2,51 @@ import { supabase } from '@/lib/supabase';
 import dayjs from 'dayjs';
 import { NextRequest, NextResponse } from 'next/server';
 
+export async function fetchAllResults(batchSize = 1000) {
+  const allResults: any[] = [];
+  let page = 0;
+
+  while (true) {
+    const from = page * batchSize;
+    const to = from + batchSize - 1;
+
+    const { data, error } = await supabase
+      .from('results')
+      .select('*')
+      .range(from, to)
+      .order('draw_date', { ascending: true });
+
+    if (error) throw new Error(error.message);
+    if (!data || data.length === 0) break;
+
+    allResults.push(...data);
+
+    if (data.length < batchSize) break;
+
+    page++;
+  }
+
+  return allResults;
+}
+
 export async function GET(req: NextRequest) {
   const searchParams = req.nextUrl.searchParams;
   const date = searchParams.get('date');
   const sort = searchParams.get('sort') === 'asc' ? 'asc' : 'desc';
   const size = parseInt(searchParams.get('size') || '150');
 
-  if (!date || !dayjs(date, 'YYYY-MM-DD', true).isValid()) {
-    return NextResponse.json({ error: 'Invalid or missing date' }, { status: 400 });
+  if (date && !dayjs(date, 'YYYY-MM-DD', true).isValid()) {
+    return NextResponse.json({ error: 'Invalid date' }, { status: 400 });
+  }
+
+  if (size === 0) {
+    const data = await fetchAllResults();
+    return NextResponse.json({
+      results: data,
+      hasNextPage: false,
+      oldestDate: null,
+      latestDate: null,
+    });
   }
 
   const refDate = dayjs(date);
