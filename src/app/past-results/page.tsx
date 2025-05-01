@@ -1,5 +1,6 @@
 'use client';
 
+import { Spinner } from '@/components/ui/spinner';
 import {
   Table,
   TableBody,
@@ -9,8 +10,8 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { COMPANIES } from '@/lib/constants';
-import { groupResultsByDate, hasDuplicateInLastThreeDigits } from '@/lib/utils';
-import { FlatResult, PivotedResult } from '@/types/results';
+import { hasDuplicateInLastThreeDigits } from '@/lib/utils';
+import { PivotedResult } from '@/types/results';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import dayjs from 'dayjs';
@@ -27,12 +28,12 @@ export default function ResultsPage() {
   const [latestDate, setLatestDate] = useState<string | null>(null);
   const [showScrollTop, setShowScrollTop] = useState(false);
 
-  const size = 150;
+  const size = 50;
   const { data, isSuccess, isError, isFetching } = useQuery({
     queryKey: ['results', anchorDate, sortOrder],
     queryFn: async () => {
       const res = await axios.get<{
-        results: FlatResult[];
+        results: PivotedResult[];
         hasNextPage: boolean;
         oldestDate: string;
         latestDate: string;
@@ -43,23 +44,17 @@ export default function ResultsPage() {
 
   useEffect(() => {
     if (isSuccess && data) {
-      const pivoted = groupResultsByDate(data.results);
-
       setResults((prev) => {
-        const map = new Map(prev.map((r) => [r.draw_date, r]));
-        for (const row of pivoted) {
-          map.set(row.draw_date, row);
-        }
-        return Array.from(map.values()).sort((a, b) =>
+        const seen = new Set(prev.map((r) => r.draw_date));
+        const newItems = data.results.filter((r) => !seen.has(r.draw_date));
+        return [...prev, ...newItems].sort((a, b) =>
           sortOrder === 'asc'
             ? a.draw_date.localeCompare(b.draw_date)
             : b.draw_date.localeCompare(a.draw_date)
         );
       });
-
       setOldestDate(data.oldestDate);
       setLatestDate(data.latestDate);
-
       setHasMore(data.hasNextPage);
     }
   }, [data, isSuccess]);
@@ -69,6 +64,12 @@ export default function ResultsPage() {
       handleLoadMore();
     }
   }, [inView, hasMore, isFetching]);
+
+  useEffect(() => {
+    if (inView && hasMore && !isFetching && data && data?.results?.length > 0) {
+      handleLoadMore();
+    }
+  }, [inView, hasMore, isFetching, data]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -85,7 +86,7 @@ export default function ResultsPage() {
 
   const handleLoadMore = () => {
     const lastDate = results[results.length - 1]?.draw_date;
-    if (!lastDate) return;
+    if (!lastDate || lastDate === anchorDate) return;
 
     const nextAnchor =
       sortOrder === 'desc' ? dayjs(lastDate).subtract(1, 'day') : dayjs(lastDate).add(1, 'day');
@@ -126,9 +127,6 @@ export default function ResultsPage() {
           {results.map((row) => (
             <TableRow key={row.draw_date}>
               <TableCell>{row.draw_date}</TableCell>
-              {/* {COMPANIES.map((company) => (
-                <TableCell key={company}>{row[company] ?? '-'}</TableCell>
-              ))} */}
               {COMPANIES.map((company) => {
                 const value = row[company];
                 const shouldHighlight = hasDuplicateInLastThreeDigits(value);
@@ -150,7 +148,7 @@ export default function ResultsPage() {
 
       {hasMore && (
         <div ref={loadMoreRef} className="h-12 flex items-center justify-center">
-          <span className="text-sm text-gray-500">{isFetching && 'Loading more...'}</span>
+          {isFetching && <Spinner />}
         </div>
       )}
 
@@ -159,7 +157,8 @@ export default function ResultsPage() {
       {showScrollTop && (
         <button
           onClick={scrollToTop}
-          className="fixed bottom-6 right-6 z-50 rounded-full bg-black text-white px-4 py-2 shadow-lg hover:bg-gray-800 transition cursor-pointer"
+          className="fixed bottom-6 right-6 z-50 w-10 h-10 rounded-full bg-black text-white flex items-center justify-center shadow-lg hover:bg-gray-800 transition"
+          aria-label="Scroll to top"
         >
           ↑
         </button>

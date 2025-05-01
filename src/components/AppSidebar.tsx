@@ -3,12 +3,12 @@ import {
   SidebarContent,
   SidebarGroup,
   SidebarGroupContent,
-  SidebarGroupLabel,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import { Calendar, Home, Settings } from 'lucide-react';
+import Image from 'next/image';
 
 const items = [
   {
@@ -33,9 +33,11 @@ export function AppSidebar() {
     <Sidebar>
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>
-            <span className="text-lg font-bold">Lotto Insight</span>
-          </SidebarGroupLabel>
+          <SidebarGroupContent>
+            <div className="relative aspect-[1536/1024] h-20">
+              <Image fill src="/logo.png" alt="Lotto Insight" />
+            </div>
+          </SidebarGroupContent>
           <SidebarGroupContent>
             <SidebarMenu>
               {items.map((item) => (

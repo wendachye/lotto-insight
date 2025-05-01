@@ -1,22 +1,8 @@
-import { FlatResult, PivotedResult } from '@/types/results';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
-}
-
-export function groupResultsByDate(data: FlatResult[]): PivotedResult[] {
-  const grouped = new Map<string, PivotedResult>();
-
-  data.forEach(({ draw_date, company, result_no }) => {
-    if (!grouped.has(draw_date)) {
-      grouped.set(draw_date, { draw_date });
-    }
-    grouped.get(draw_date)![company] = result_no;
-  });
-
-  return Array.from(grouped.values());
 }
 
 export function hasDuplicateInLastThreeDigits(number: number | string | null | undefined): boolean {

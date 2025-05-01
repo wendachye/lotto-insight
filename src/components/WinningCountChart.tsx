@@ -26,13 +26,11 @@ export function WinningCountChart({ data }: { data: PivotedResult[] }) {
     let dupes = 0;
 
     for (const row of data) {
-      if (row.company === company) {
-        const value = row.result_no;
-        if (value) {
-          total++;
-          if (hasDuplicateInLastThreeDigits(value)) {
-            dupes++;
-          }
+      const value = row[company];
+      if (value) {
+        total++;
+        if (hasDuplicateInLastThreeDigits(value)) {
+          dupes++;
         }
       }
     }
@@ -46,7 +44,7 @@ export function WinningCountChart({ data }: { data: PivotedResult[] }) {
 
   return (
     <div className="mt-8">
-      <h2 className="text-lg font-semibold mb-4">Winning Count by Company</h2>
+      <h2 className="text-lg font-semibold mb-4">Winning Count</h2>
       <ResponsiveContainer width="100%" height={400}>
         <BarChart data={chartData} margin={{ top: 10, right: 30, left: 10, bottom: 0 }} barGap={8}>
           <CartesianGrid strokeDasharray="3 3" />

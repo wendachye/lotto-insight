@@ -22,7 +22,7 @@ export async function GET(req: NextRequest) {
 
   const { data: results, error } = await supabase
     .from('results')
-    .select('draw_date, company, result_no')
+    .select('draw_date, magnum, toto, damacai, sandakan, sabah, sarawak, singapore')
     .gte('draw_date', fromDate)
     .lte('draw_date', toDate)
     .order('draw_date', { ascending: sort === 'asc' });
@@ -37,7 +37,6 @@ export async function GET(req: NextRequest) {
       : dayjs(toDate).add(1, 'day').format('YYYY-MM-DD');
 
   let edgeQuery = supabase.from('results').select('id').limit(1);
-
   if (sort === 'asc') {
     edgeQuery = edgeQuery.gte('draw_date', edgeDate);
   } else {
@@ -45,7 +44,6 @@ export async function GET(req: NextRequest) {
   }
 
   const { data: nextRow, error: nextError } = await edgeQuery;
-
   if (nextError) {
     return NextResponse.json({ error: nextError.message }, { status: 500 });
   }

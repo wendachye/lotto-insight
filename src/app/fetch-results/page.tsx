@@ -1,13 +1,9 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { Calendar } from '@/components/ui/calendar';
-import { Label } from '@/components/ui/label';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { cn } from '@/lib/utils';
+import { EditableDatePicker } from '@/components/ui/datepicker';
 import { useMutation } from '@tanstack/react-query';
 import { format } from 'date-fns';
-import { CalendarIcon } from 'lucide-react';
 import { useState } from 'react';
 
 export default function FetchResultPage() {
@@ -58,45 +54,21 @@ export default function FetchResultPage() {
       <h1 className="text-2xl font-semibold">Fetch Results</h1>
 
       <div className="space-y-2">
-        <Label>Start Date</Label>
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button
-              variant="outline"
-              className={cn(
-                'w-full max-w-[250px] justify-start text-left font-normal cursor-pointer',
-                !startDate && 'text-muted-foreground'
-              )}
-            >
-              <CalendarIcon className="mr-2 h-4 w-4" />
-              {startDate ? format(startDate, 'yyyy-MM-dd') : 'Pick a date'}
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-auto p-0" align="start">
-            <Calendar mode="single" selected={startDate} onSelect={setStartDate} />
-          </PopoverContent>
-        </Popover>
+        <EditableDatePicker
+          label="Start Date"
+          date={startDate}
+          placeholder="Pick a date (YYYY-MM-DD)"
+          onChange={setStartDate}
+        />
       </div>
 
       <div className="space-y-2 cursor-pointer">
-        <Label>End Date (optional)</Label>
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button
-              variant="outline"
-              className={cn(
-                'w-full max-w-[250px] justify-start text-left font-normal cursor-pointer',
-                !endDate && 'text-muted-foreground'
-              )}
-            >
-              <CalendarIcon className="mr-2 h-4 w-4" />
-              {endDate ? format(endDate, 'yyyy-MM-dd') : 'Pick a date'}
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-auto p-0" align="start">
-            <Calendar mode="single" selected={endDate} onSelect={setEndDate} />
-          </PopoverContent>
-        </Popover>
+        <EditableDatePicker
+          label="End Date (optional)"
+          date={endDate}
+          placeholder="Pick a date (YYYY-MM-DD)"
+          onChange={setEndDate}
+        />
       </div>
 
       <Button className="cursor-pointer" onClick={handleScrape} disabled={scrapeMutation.isPending}>
