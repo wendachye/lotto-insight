@@ -1,8 +1,10 @@
 'use client';
 
 import { DateRangeSelector } from '@/components/DateRangeSelector';
-import { WinningCountChart } from '@/components/WinningCountChart';
+import { DigitPatternChart } from '@/components/DigitPatternChart';
+import { WinTrendChart } from '@/components/WinTrendChart';
 import { WinningCumulativeChart } from '@/components/WinningCumulativeChart';
+import { WinningPercentageChart } from '@/components/WinningPercentageChart';
 import { Skeleton } from '@/components/ui/skeleton';
 import { PivotedResult } from '@/types/results';
 import { useQuery } from '@tanstack/react-query';
@@ -14,15 +16,6 @@ export default function HomePage() {
   const [size, setSize] = useState(365);
   const { data, isSuccess, isFetching } = useQuery({
     queryKey: ['results', size],
-    // queryFn: async () => {
-    //   const res = await axios.get<{
-    //     results: PivotedResult[];
-    //     hasNextPage: boolean;
-    //     oldestDate: string;
-    //     latestDate: string;
-    //   }>(`/api/results?date=${dayjs().format('YYYY-MM-DD')}&size=${size}`);
-    //   return res.data;
-    // },
     queryFn: async () => {
       if (size === 0) {
         const res = await axios.get<{
@@ -50,17 +43,21 @@ export default function HomePage() {
       <DateRangeSelector value={size} onChange={setSize} />
 
       {isFetching && (
-        <div className="space-y-4">
-          <Skeleton className="h-[400px] w-full" />
-          <Skeleton className="h-[400px] w-full" />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <Skeleton className="h-[300px] w-full" />
+          <Skeleton className="h-[300px] w-full" />
+          <Skeleton className="h-[300px] w-full" />
+          <Skeleton className="h-[300px] w-full" />
         </div>
       )}
 
       {!isFetching && isSuccess && (
-        <>
-          <WinningCountChart data={data.results} />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <WinningCumulativeChart data={data.results} />
-        </>
+          <WinTrendChart data={data.results} />
+          <WinningPercentageChart data={data.results} />
+          <DigitPatternChart data={data.results} />
+        </div>
       )}
     </div>
   );

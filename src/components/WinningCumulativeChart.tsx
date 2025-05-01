@@ -3,6 +3,7 @@
 import { COMPANIES } from '@/lib/constants';
 import { hasDuplicateInLastThreeDigits } from '@/lib/utils';
 import { PivotedResult } from '@/types/results';
+import { useMediaQuery } from '@react-hook/media-query';
 import { useState } from 'react';
 import {
   CartesianGrid,
@@ -20,6 +21,8 @@ type ChartPoint = {
 } & Record<string, number | string>;
 
 export function WinningCumulativeChart({ data }: { data: PivotedResult[] }) {
+  const isMobile = useMediaQuery('only screen and (max-width: 767px)');
+
   const sorted = [...data].sort((a, b) => a.draw_date.localeCompare(b.draw_date));
   const cumulativeTotals: Record<string, number> = {};
   const chartData: ChartPoint[] = [];
@@ -56,7 +59,7 @@ export function WinningCumulativeChart({ data }: { data: PivotedResult[] }) {
   return (
     <div className="mt-8">
       <h2 className="text-lg sm:text-xl font-semibold">Cumulative Winning Over Time</h2>
-      <ResponsiveContainer width="100%" height={300}>
+      <ResponsiveContainer width="100%" height={isMobile ? 300 : 400}>
         <LineChart
           key={Object.values(visibleLines).join('')} // Ensures chart reinitializes cleanly
           data={chartData}
