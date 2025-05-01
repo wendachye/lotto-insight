@@ -1,8 +1,9 @@
 'use client';
 
+import { AverageStreakChart } from '@/components/AverageStreakChart';
 import { DateRangeSelector } from '@/components/DateRangeSelector';
 import { DigitPatternChart } from '@/components/DigitPatternChart';
-import { StreaksChart } from '@/components/StreaksChart';
+import { LongestStreaksChart } from '@/components/LongestStreaksChart';
 import { WinTrendChart } from '@/components/WinTrendChart';
 import { WinningCumulativeChart } from '@/components/WinningCumulativeChart';
 import { WinningPercentageChart } from '@/components/WinningPercentageChart';
@@ -14,7 +15,7 @@ import dayjs from 'dayjs';
 import { useState } from 'react';
 
 export default function HomePage() {
-  const [size, setSize] = useState(365);
+  const [size, setSize] = useState(0);
   const { data, isSuccess, isFetching } = useQuery({
     queryKey: ['results', size],
     queryFn: async () => {
@@ -58,7 +59,8 @@ export default function HomePage() {
           <WinTrendChart data={data.results} />
           <WinningPercentageChart data={data.results} />
           <DigitPatternChart data={data.results} />
-          <StreaksChart data={data.results} />
+          <LongestStreaksChart data={data.results} />
+          <AverageStreakChart data={data.results} />
         </div>
       )}
     </div>

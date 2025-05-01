@@ -1,4 +1,4 @@
-import { PivotedResult, StreakResult } from '@/types/results';
+import { AverageStreakResult, LongestStreakResult, PivotedResult } from '@/types/results';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import { COMPANIES } from './constants';
@@ -43,16 +43,16 @@ export function formatQuarter(date: Date): string {
   return `Q${quarter}-${year}`;
 }
 
-export function analyzeStreaks(data: PivotedResult[]): StreakResult[] {
+export function analyzeLongestStreaks(data: PivotedResult[]): LongestStreakResult[] {
   const sorted = [...data].sort((a, b) => a.draw_date.localeCompare(b.draw_date));
-  const results: StreakResult[] = [];
+  const results: LongestStreakResult[] = [];
 
   for (const company of COMPANIES) {
     let currentType: 'win' | 'lose' | null = null;
     let currentLength = 0;
     let currentStart: string | null = null;
-    let maxWin: StreakResult | null = null;
-    let maxLose: StreakResult | null = null;
+    let maxWin: LongestStreakResult | null = null;
+    let maxLose: LongestStreakResult | null = null;
 
     for (let i = 0; i < sorted.length; i++) {
       const row = sorted[i];
@@ -70,7 +70,7 @@ export function analyzeStreaks(data: PivotedResult[]): StreakResult[] {
             .reverse()
             .find((r) => r[company])?.draw_date;
 
-          const streak: StreakResult = {
+          const streak: LongestStreakResult = {
             company,
             type: currentType,
             length: currentLength,
@@ -101,7 +101,7 @@ export function analyzeStreaks(data: PivotedResult[]): StreakResult[] {
         .reverse()
         .find((r) => r[company])?.draw_date;
 
-      const finalStreak: StreakResult = {
+      const finalStreak: LongestStreakResult = {
         company,
         type: currentType,
         length: currentLength,
@@ -118,6 +118,52 @@ export function analyzeStreaks(data: PivotedResult[]): StreakResult[] {
 
     if (maxWin) results.push(maxWin);
     if (maxLose) results.push(maxLose);
+  }
+
+  return results;
+}
+
+export function average(arr: number[]) {
+  return arr.length > 0 ? parseFloat((arr.reduce((a, b) => a + b, 0) / arr.length).toFixed(2)) : 0;
+}
+
+export function analyzeAverageStreaks(data: PivotedResult[]): AverageStreakResult[] {
+  const sorted = [...data].sort((a, b) => a.draw_date.localeCompare(b.draw_date));
+  const results: AverageStreakResult[] = [];
+
+  for (const company of COMPANIES) {
+    let currentType: 'win' | 'lose' | null = null;
+    let currentLength = 0;
+
+    const winStreaks: number[] = [];
+    const loseStreaks: number[] = [];
+
+    for (const row of sorted) {
+      const value = row[company];
+      if (!value) continue;
+
+      const isWin = hasDuplicateInLastThreeDigits(value);
+      const type: 'win' | 'lose' = isWin ? 'win' : 'lose';
+
+      if (type !== currentType) {
+        if (currentType === 'win') winStreaks.push(currentLength);
+        if (currentType === 'lose') loseStreaks.push(currentLength);
+        currentType = type;
+        currentLength = 1;
+      } else {
+        currentLength++;
+      }
+    }
+
+    // Handle final streak
+    if (currentType === 'win') winStreaks.push(currentLength);
+    if (currentType === 'lose') loseStreaks.push(currentLength);
+
+    results.push({
+      company,
+      averageWin: average(winStreaks),
+      averageLose: average(loseStreaks),
+    });
   }
 
   return results;

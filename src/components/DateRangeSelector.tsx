@@ -10,12 +10,12 @@ interface DateRangeSelectorProps {
 }
 
 const RANGE_OPTIONS: { label: string; value: number }[] = [
-  { label: '1 Month', value: 30 },
-  { label: '3 Months', value: 90 },
-  { label: '6 Months', value: 180 },
-  { label: '1 Year', value: 365 },
-  { label: '3 Years', value: 1095 },
   { label: 'All', value: 0 },
+  { label: '3 Years', value: 1095 },
+  { label: '1 Year', value: 365 },
+  { label: '6 Months', value: 180 },
+  { label: '3 Months', value: 90 },
+  { label: '1 Month', value: 30 },
 ];
 
 export function DateRangeSelector({ value, onChange, className }: DateRangeSelectorProps) {

@@ -1,7 +1,7 @@
 'use client';
 
 import { COMPANIES } from '@/lib/constants';
-import { analyzeStreaks } from '@/lib/utils';
+import { analyzeLongestStreaks } from '@/lib/utils';
 import { PivotedResult } from '@/types/results';
 import { useMediaQuery } from '@react-hook/media-query';
 import {
@@ -15,9 +15,9 @@ import {
   YAxis,
 } from 'recharts';
 
-export function StreaksChart({ data }: { data: PivotedResult[] }) {
+export function LongestStreaksChart({ data }: { data: PivotedResult[] }) {
   const isMobile = useMediaQuery('only screen and (max-width: 767px)');
-  const streaks = analyzeStreaks(data);
+  const streaks = analyzeLongestStreaks(data);
 
   const chartData = COMPANIES.map((company) => {
     const win = streaks.find((s) => s.company === company && s.type === 'win');
@@ -40,12 +40,12 @@ export function StreaksChart({ data }: { data: PivotedResult[] }) {
       <div className="rounded border bg-white p-2 shadow">
         <div className="font-semibold">{data.company}</div>
         <div className="text-sm text-green-600">
-          Win Streak: {data.win}
+          Longest Win Streak: {data.win}
           <br />
           {data.winStart} → {data.winEnd}
         </div>
         <div className="text-sm text-red-600 mt-1">
-          Lose Streak: {data.lose}
+          Longest Lose Streak: {data.lose}
           <br />
           {data.loseStart} → {data.loseEnd}
         </div>
@@ -63,8 +63,8 @@ export function StreaksChart({ data }: { data: PivotedResult[] }) {
           <YAxis allowDecimals={false} />
           <Tooltip content={renderTooltip} />
           <Legend />
-          <Bar dataKey="win" fill="#10B981" name="Win Streak" />
-          <Bar dataKey="lose" fill="#EF4444" name="Lose Streak" />
+          <Bar dataKey="win" fill="#10B981" name="Longest Win Streak" />
+          <Bar dataKey="lose" fill="#EF4444" name="Longest Lose Streak" />
         </BarChart>
       </ResponsiveContainer>
     </div>
