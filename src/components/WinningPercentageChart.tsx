@@ -5,35 +5,45 @@ import { COLORS, COMPANIES } from '@/lib/constants';
 import { hasDuplicateInLastThreeDigits } from '@/lib/utils';
 import { PivotedResult } from '@/types/results';
 import { useMemo, useState } from 'react';
-import { Cell, Legend, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts';
+import {
+  Cell,
+  Legend,
+  Pie,
+  PieChart,
+  ResponsiveContainer,
+  Tooltip,
+  type PieLabelRenderProps,
+} from 'recharts';
 
 export function WinningPercentageChart({ data }: { data: PivotedResult[] }) {
   const isMobile = useIsMobile();
   const [hiddenCompanies, setHiddenCompanies] = useState<Set<string>>(new Set());
 
-  const counts = useMemo(() => {
-    return COMPANIES.map((company) => {
-      let winning = 0;
-      for (const row of data) {
-        const value = row[company];
-        if (value && hasDuplicateInLastThreeDigits(value)) {
-          winning++;
+  const counts = useMemo(
+    () =>
+      COMPANIES.map((company) => {
+        let winning = 0;
+        for (const row of data) {
+          const value = row[company];
+          if (value && hasDuplicateInLastThreeDigits(value)) {
+            winning++;
+          }
         }
-      }
-      return {
-        company,
-        name: company.charAt(0).toUpperCase() + company.slice(1),
-        value: winning,
-      };
-    }).filter((entry) => entry.value > 0);
-  }, [data]);
+        return {
+          company,
+          name: company.charAt(0).toUpperCase() + company.slice(1),
+          value: winning,
+        };
+      }).filter((entry) => entry.value > 0),
+    [data]
+  );
 
   const visibleData = counts.filter((c) => !hiddenCompanies.has(c.company));
   const totalWins = visibleData.reduce((sum, item) => sum + item.value, 0);
 
   const chartData = visibleData.map((entry) => ({
     ...entry,
-    percentage: ((entry.value / totalWins) * 100).toFixed(1) + '%',
+    percentage: totalWins > 0 ? ((entry.value / totalWins) * 100).toFixed(1) + '%' : '0.0%',
   }));
 
   const toggleCompany = (id: string) => {
@@ -45,19 +55,26 @@ export function WinningPercentageChart({ data }: { data: PivotedResult[] }) {
     });
   };
 
-  const renderCustomLabel = ({
-    cx,
-    cy,
-    midAngle,
-    innerRadius,
-    outerRadius,
-    percent,
-    name,
-  }: any) => {
+  const renderCustomLabel = (props: PieLabelRenderProps) => {
+    const {
+      cx = 0,
+      cy = 0,
+      midAngle = 0,
+      innerRadius = 0,
+      outerRadius = 0,
+      percent = 0,
+      name,
+    } = props;
+
+    if (!name) return null;
+
     const RADIAN = Math.PI / 180;
-    const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
-    const x = cx + radius * Math.cos(-midAngle * RADIAN);
-    const y = cy + radius * Math.sin(-midAngle * RADIAN);
+    const inner = Number(innerRadius) || 0;
+    const outer = Number(outerRadius) || 0;
+    const radius = inner + (outer - inner) * 0.5;
+
+    const x = Number(cx) + radius * Math.cos(-midAngle * RADIAN);
+    const y = Number(cy) + radius * Math.sin(-midAngle * RADIAN);
 
     return (
       <text
@@ -73,12 +90,44 @@ export function WinningPercentageChart({ data }: { data: PivotedResult[] }) {
     );
   };
 
-  const legendPayload = counts.map((entry, i) => ({
-    value: `${entry.name} (${entry.value})`,
-    id: entry.company,
-    color: COLORS[i % COLORS.length],
-    inactive: hiddenCompanies.has(entry.company),
-  }));
+  const renderLegend = () => {
+    if (!counts.length) return null;
+
+    return (
+      <ul className="flex flex-wrap gap-2 text-xs">
+        {counts.map((entry) => {
+          const isHidden = hiddenCompanies.has(entry.company);
+          const color = COLORS[COMPANIES.indexOf(entry.company) % COLORS.length];
+
+          return (
+            <li
+              key={entry.company}
+              onClick={() => toggleCompany(entry.company)}
+              style={{
+                cursor: 'pointer',
+                opacity: isHidden ? 0.4 : 1,
+                display: 'flex',
+                alignItems: 'center',
+                gap: 4,
+              }}
+            >
+              <span
+                style={{
+                  width: 10,
+                  height: 10,
+                  borderRadius: 2,
+                  backgroundColor: color,
+                  border: isHidden ? '1px dashed #999' : 'none',
+                  display: 'inline-block',
+                }}
+              />
+              <span>{`${entry.name} (${entry.value})`}</span>
+            </li>
+          );
+        })}
+      </ul>
+    );
+  };
 
   return (
     <div className="w-full p-2">
@@ -95,17 +144,15 @@ export function WinningPercentageChart({ data }: { data: PivotedResult[] }) {
           >
             {chartData.map((entry) => (
               <Cell
-                key={entry.name}
+                key={entry.company}
                 fill={COLORS[COMPANIES.indexOf(entry.company) % COLORS.length]}
               />
             ))}
           </Pie>
+
           <Tooltip formatter={(value: number, name: string) => [`${value}`, `Company: ${name}`]} />
-          <Legend
-            payload={legendPayload}
-            onClick={(e: any) => toggleCompany(e.id)}
-            wrapperStyle={{ cursor: 'pointer' }}
-          />
+
+          <Legend content={renderLegend} />
         </PieChart>
       </ResponsiveContainer>
     </div>

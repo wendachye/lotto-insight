@@ -14,6 +14,7 @@ import {
   Tooltip,
   XAxis,
   YAxis,
+  type LegendProps,
 } from 'recharts';
 
 type ChartPoint = {
@@ -48,11 +49,18 @@ export function WinningCumulativeChart({ data }: { data: PivotedResult[] }) {
     Object.fromEntries(COMPANIES.map((c) => [c, true]))
   );
 
-  const handleLegendClick = (dataKey: string) => {
+  const toggleLine = (dataKey: string) => {
     setVisibleLines((prev) => ({
       ...prev,
       [dataKey]: !prev[dataKey],
     }));
+  };
+
+  // Recharts v3: Legend onClick gets the legend item, no manual payload prop
+  const handleLegendClick: LegendProps['onClick'] = (item) => {
+    if (!item) return;
+    const dataKey = (item as any).dataKey as string | undefined;
+    if (dataKey) toggleLine(dataKey);
   };
 
   return (
@@ -68,25 +76,36 @@ export function WinningCumulativeChart({ data }: { data: PivotedResult[] }) {
           <XAxis dataKey="draw_date" tick={{ fontSize: 12 }} />
           <YAxis allowDecimals={false} />
           <Tooltip />
+
           <Legend
-            onClick={(e: any) => handleLegendClick(e.dataKey)}
-            payload={COMPANIES.map((company) => ({
-              value: company.charAt(0).toUpperCase() + company.slice(1),
-              id: company,
-              dataKey: company,
-              type: 'line',
-              color: `hsl(${(COMPANIES.indexOf(company) * 50) % 360}, 70%, 50%)`,
-              inactive: !visibleLines[company],
-            }))}
+            onClick={handleLegendClick}
+            formatter={(value, entry) => {
+              const dataKey = (entry as any).dataKey as string;
+              const label = dataKey
+                ? dataKey.charAt(0).toUpperCase() + dataKey.slice(1)
+                : String(value);
+              const isInactive = !visibleLines[dataKey];
+
+              return (
+                <span
+                  style={{
+                    opacity: isInactive ? 0.4 : 1,
+                  }}
+                >
+                  {label}
+                </span>
+              );
+            }}
           />
-          {COMPANIES.map((company) =>
+
+          {COMPANIES.map((company, index) =>
             visibleLines[company] ? (
               <Line
                 key={`line-${company}`}
                 type="monotone"
                 dataKey={company}
                 strokeWidth={2}
-                stroke={`hsl(${(COMPANIES.indexOf(company) * 50) % 360}, 70%, 50%)`}
+                stroke={`hsl(${(index * 50) % 360}, 70%, 50%)`}
                 dot={false}
                 isAnimationActive={false}
               />
