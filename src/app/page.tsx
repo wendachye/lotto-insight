@@ -38,6 +38,8 @@ export default function HomePage() {
       }>(`/api/results?date=${dayjs().format('YYYY-MM-DD')}&size=${size}`);
       return res.data;
     },
+    refetchOnWindowFocus: false,
+    staleTime: 1000 * 60 * 5,
   });
 
   return (
